@@ -42,14 +42,17 @@ export const SearchPage = () => {
   //React에서 엄격모드일 경우, 의도적으로 초기 로드 시 두 번 호출하므로 신경쓰지 말 것.(빌드 시 문제 없음)
   const { data, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
     ["posts", query],
-    async ({ pageParam = 0 }) => {
-      const { data } = await getPosts(query, PAGE_SIZE, pageParam);
+    async () => {
+      const { data } = await getPosts(query);
       return data;
     },
     {
-      getNextPageParam: (lastPage, allPages) => {
-        if (!lastPage.isLast) return allPages.length * PAGE_SIZE;
-        return;
+      // getNextPageParam: (lastPage, allPages) => {
+      //   if (!lastPage.isLast) return allPages.length * PAGE_SIZE;
+      //   return;
+      // },
+      onSuccess: (data) => {
+        console.log(data, "ddfdfd");
       },
       onError: () => {
         setOpenErrorDialog(true);
@@ -88,18 +91,18 @@ export const SearchPage = () => {
     if (typeof data === "undefined") {
       return null;
     }
-    return data.pages.map((page) => {
-      return page.documents.map((post: IPost) => {
+    return data.pages?.map((page: any) => {
+      return page.items?.map((post: IPost) => {
         return (
           <Post
-            key={post.id}
-            id={post.id}
+            key={post.link}
+            id={post.link}
             title={post.title}
-            imageUrl={post.imageUrl}
-            netloc={post.netloc}
-            url={post.url}
-            faviconUrl={post.faviconUrl}
-            initialIsSaved={post.isSaved}
+            imageUrl={post.pagemap?.cse_image?.[0]?.src}
+            netloc={post.link}
+            url={post.link}
+            faviconUrl={post.pagemap?.cse_thumbnail?.[0]?.src}
+            initialIsSaved={false}
           />
         );
       });
@@ -119,7 +122,7 @@ export const SearchPage = () => {
         {renderData()}
         {isFetching && <PostSkeleton repeat={10} />}
         <div ref={bottomElementRef} />
-        <S.HelpText>{getHelpText()}</S.HelpText>
+        {/* <S.HelpText>{getHelpText()}</S.HelpText> */}
       </S.PostsWrapper>
       <Dialog open={openErrorDialog} setOpen={setOpenErrorDialog} />
     </S.Container>

@@ -1,23 +1,22 @@
 import axios from "axios";
 
-const API_KEY = "secret_7DnicfdZeu9ZWcaOdm34gq68Xe1xyJwGGraRBNtHuiK";
-const API_VERSION = "2021-05-13";
+const API_KEY = "AIzaSyBDSjx0yr_jfrvgo4r5QMM0AOPGeb1Clpo";
 
-axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
-
-export const getPosts = async (databaseId: string) => {
+export const getPosts = async (query: string) => {
   const response = await axios.get(
-    `https://api.notion.com/v1/databases/4b044676bc69414bbe5bcf569c4a7e9b`,
+    `https://www.googleapis.com/customsearch/v1`,
     {
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        "Notion-Version": API_VERSION,
+      params: {
+        q: query,
+        key: API_KEY,
+        cx: "51374a541ef1c4f3c",
       },
     }
   );
 
-  return response.data;
+  return response;
 };
+
 export const postBookmark = (id: string) => {
   return axios.post(``);
 };
