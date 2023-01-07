@@ -27,8 +27,6 @@ interface IPost {
   isSaved: boolean;
 }
 
-const PAGE_SIZE = 20;
-
 export const SearchPage = () => {
   const navigate = useNavigate();
 
@@ -39,21 +37,19 @@ export const SearchPage = () => {
 
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
-  //React에서 엄격모드일 경우, 의도적으로 초기 로드 시 두 번 호출하므로 신경쓰지 말 것.(빌드 시 문제 없음)
   const { data, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
     ["posts", query],
-    async () => {
-      const { data } = await getPosts(query);
+    async ({ pageParam = 0 }) => {
+      const { data } = await getPosts(query, pageParam);
       return data;
     },
     {
-      // getNextPageParam: (lastPage, allPages) => {
-      //   if (!lastPage.isLast) return allPages.length * PAGE_SIZE;
-      //   return;
-      // },
-      onSuccess: (data) => {
-        console.log(data, "ddfdfd");
+      getNextPageParam: (lastPage) => {
+        console.log(lastPage.queries.nextPage[0].startIndex, "???");
+        return lastPage.queries.nextPage[0].startIndex;
       },
+    },
+    {
       onError: () => {
         setOpenErrorDialog(true);
       },
@@ -110,6 +106,7 @@ export const SearchPage = () => {
   };
 
   useEffect(() => {
+    console.log(query, inView, hasNextPage, !isFetching);
     if (query && inView && hasNextPage && !isFetching) {
       fetchNextPage();
     }

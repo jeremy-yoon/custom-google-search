@@ -7,11 +7,10 @@ interface IPostSkeleton {
 }
 
 export const PostSkeleton: React.FC<IPostSkeleton> = ({ repeat = 1 }) => {
-  const repeatArray = Array.from(Array(repeat).keys());
   return (
     <>
-      {repeatArray.map(() => (
-        <S.Container>
+      {Array.from(Array(repeat).keys()).map((_, index) => (
+        <S.Container key={index}>
           <S.Wrapper>
             <S.PostImage />
             <S.PostContentWrapper>

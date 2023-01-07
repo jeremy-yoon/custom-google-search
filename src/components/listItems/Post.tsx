@@ -34,10 +34,26 @@ export const Post: React.FC<IPost> = React.memo(
       window.open(url, "_blank");
     };
 
+    const handleImageError = (
+      e: React.SyntheticEvent<HTMLImageElement, Event>
+    ) => {
+      const target = e.target as HTMLImageElement;
+      target.onerror = null;
+      target.src = defaultThumb;
+    };
+
+    const handleFaviError = (
+      e: React.SyntheticEvent<HTMLImageElement, Event>
+    ) => {
+      const target = e.target as HTMLImageElement;
+      target.onerror = null;
+      target.src = DefaultFavi;
+    };
+
     return (
       <S.Container onClick={goToLink}>
         <S.Wrapper>
-          <S.PostImage src={imageUrl} />
+          <S.PostImage src={imageUrl} onError={handleImageError} />
           <S.PostContentWrapper>
             <S.Title>{title}</S.Title>
             <S.LinkWrapper>

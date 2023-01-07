@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_KEY = "AIzaSyBDSjx0yr_jfrvgo4r5QMM0AOPGeb1Clpo";
 
-export const getPosts = async (query: string) => {
+export const getPosts = async (query: string, startIndex: number) => {
   const response = await axios.get(
     `https://www.googleapis.com/customsearch/v1`,
     {
@@ -10,6 +10,7 @@ export const getPosts = async (query: string) => {
         q: query,
         key: API_KEY,
         cx: "51374a541ef1c4f3c",
+        start: startIndex,
       },
     }
   );
