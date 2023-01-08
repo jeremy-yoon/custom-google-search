@@ -13,25 +13,25 @@ import { DefaultFavi, defaultThumb } from "@/assets";
 interface IPost {
   id: string;
   title: string;
-  netloc: string;
-  url: string;
   imageUrl?: string;
   faviconUrl?: string;
   initialIsSaved?: boolean;
+  link: string;
+  displayLink: string;
 }
 
 export const Post: React.FC<IPost> = React.memo(
   ({
     id,
     title,
-    netloc,
-    url,
+    displayLink,
+    link,
     imageUrl = defaultThumb,
     faviconUrl = DefaultFavi,
     initialIsSaved = false,
   }) => {
     const goToLink = () => {
-      window.open(url, "_blank");
+      window.open(link, "_blank");
     };
 
     const handleImageError = (
@@ -58,7 +58,7 @@ export const Post: React.FC<IPost> = React.memo(
             <S.Title>{title}</S.Title>
             <S.LinkWrapper>
               <S.Favicon src={faviconUrl} />
-              <S.Link>{netloc}</S.Link>
+              <S.Link>{displayLink}</S.Link>
             </S.LinkWrapper>
           </S.PostContentWrapper>
           <BookMarkButton postId={id} initialIsSaved={initialIsSaved} />

@@ -1,15 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   createSearchParams,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
-
-//apis
-import { getPosts } from "@/apis";
+import { usePostsQuery } from "@/hooks";
 
 //components
 import { SearchHeader, Post, PostSkeleton, Dialog } from "@/components";
@@ -18,13 +15,18 @@ import { SearchHeader, Post, PostSkeleton, Dialog } from "@/components";
 import { colors } from "@/styles/colors";
 
 interface IPost {
-  id: string;
+  link: string;
+  cacheId: string;
   title: string;
-  imageUrl: string;
-  netloc: string;
-  url: string;
-  faviconUrl: string;
-  isSaved: boolean;
+  displayLink: string;
+  pagemap: {
+    cse_thumbnail: {
+      src: string;
+    }[];
+    cse_image: {
+      src: string;
+    }[];
+  };
 }
 
 export const SearchPage = () => {
@@ -33,29 +35,9 @@ export const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query") as string;
 
+  const { data, isFetching, fetchNextPage, hasNextPage } = usePostsQuery(query);
+
   const [bottomElementRef, inView] = useInView();
-
-  const [openErrorDialog, setOpenErrorDialog] = useState(false);
-
-  const { data, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
-    ["posts", query],
-    async ({ pageParam = 0 }) => {
-      const { data } = await getPosts(query, pageParam);
-      return data;
-    },
-    {
-      getNextPageParam: (lastPage) => {
-        console.log(lastPage.queries.nextPage[0].startIndex, "???");
-        return lastPage.queries.nextPage[0].startIndex;
-      },
-    },
-    {
-      onError: () => {
-        setOpenErrorDialog(true);
-      },
-      refetchOnWindowFocus: false,
-    }
-  );
 
   const goToSearchPage = (query: string) => {
     navigate({
@@ -74,15 +56,6 @@ export const SearchPage = () => {
     });
   };
 
-  const getHelpText = () => {
-    if (data?.pages[0].documents.length === 0 && !isFetching) {
-      return "검색 결과가 없어요.";
-    }
-    if (!hasNextPage) {
-      return "모든 검색 결과를 불러왔어요.";
-    }
-  };
-
   const renderData = () => {
     if (typeof data === "undefined") {
       return null;
@@ -92,11 +65,11 @@ export const SearchPage = () => {
         return (
           <Post
             key={post.link}
-            id={post.link}
+            id={post.cacheId}
             title={post.title}
             imageUrl={post.pagemap?.cse_image?.[0]?.src}
-            netloc={post.link}
-            url={post.link}
+            displayLink={post.displayLink}
+            link={post.link}
             faviconUrl={post.pagemap?.cse_thumbnail?.[0]?.src}
             initialIsSaved={false}
           />
@@ -106,7 +79,6 @@ export const SearchPage = () => {
   };
 
   useEffect(() => {
-    console.log(query, inView, hasNextPage, !isFetching);
     if (query && inView && hasNextPage && !isFetching) {
       fetchNextPage();
     }
@@ -119,9 +91,7 @@ export const SearchPage = () => {
         {renderData()}
         {isFetching && <PostSkeleton repeat={10} />}
         <div ref={bottomElementRef} />
-        {/* <S.HelpText>{getHelpText()}</S.HelpText> */}
       </S.PostsWrapper>
-      <Dialog open={openErrorDialog} setOpen={setOpenErrorDialog} />
     </S.Container>
   );
 };
