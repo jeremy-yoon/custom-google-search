@@ -35,7 +35,14 @@ export const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query") as string;
 
-  const { data, isFetching, fetchNextPage, hasNextPage } = usePostsQuery(query);
+  const {
+    data,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isErrorDialogOpen,
+    setIsErrorDialogOpen,
+  } = usePostsQuery(query);
 
   const [bottomElementRef, inView] = useInView();
 
@@ -60,8 +67,8 @@ export const SearchPage = () => {
     if (typeof data === "undefined") {
       return null;
     }
-    return data.pages?.map((page: any) => {
-      return page.items?.map((post: IPost) => {
+    return data.pages.map((page: any) => {
+      return page.items.map((post: IPost) => {
         return (
           <Post
             key={post.link}
@@ -85,14 +92,17 @@ export const SearchPage = () => {
   }, [inView]);
 
   return (
-    <S.Container>
-      <SearchHeader initialValue={query} onClickInputEnter={goToSearchPage} />
-      <S.PostsWrapper>
-        {renderData()}
-        {isFetching && <PostSkeleton repeat={10} />}
-        <div ref={bottomElementRef} />
-      </S.PostsWrapper>
-    </S.Container>
+    <>
+      <S.Container>
+        <SearchHeader initialValue={query} onClickInputEnter={goToSearchPage} />
+        <S.PostsWrapper>
+          {renderData()}
+          {isFetching && <PostSkeleton repeat={10} />}
+          <div ref={bottomElementRef} />
+        </S.PostsWrapper>
+      </S.Container>
+      <Dialog isOpen={isErrorDialogOpen} setIsOpen={setIsErrorDialogOpen} />
+    </>
   );
 };
 

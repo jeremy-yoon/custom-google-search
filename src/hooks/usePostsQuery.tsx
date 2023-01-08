@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "react-query";
 //apis
 import { getPosts } from "@/apis";
 
-interface PostsData {
+interface IPost {
   queries: {
     nextPage: {
       startIndex: number;
@@ -13,8 +13,9 @@ interface PostsData {
 }
 
 export const usePostsQuery = (query: string) => {
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const { data, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery<
-    PostsData,
+    IPost,
     number
   >(
     ["posts", query],
@@ -26,6 +27,9 @@ export const usePostsQuery = (query: string) => {
       getNextPageParam: (lastPage) => {
         return lastPage.queries.nextPage[0].startIndex;
       },
+      onError(error) {
+        setIsErrorDialogOpen(true);
+      },
     }
   );
 
@@ -34,5 +38,7 @@ export const usePostsQuery = (query: string) => {
     isFetching,
     fetchNextPage,
     hasNextPage,
+    isErrorDialogOpen,
+    setIsErrorDialogOpen,
   };
 };

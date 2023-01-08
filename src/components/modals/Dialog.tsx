@@ -11,23 +11,23 @@ interface IDialog {
   title?: string;
   okText?: string;
   showOverlay?: boolean;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Dialog: React.FC<IDialog> = ({
   title = "Something went wrong",
   okText = "OK",
   showOverlay = true,
-  open,
-  setOpen,
+  isOpen,
+  setIsOpen,
 }) => {
   const onClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
-    setOpen(false);
+    setIsOpen(false);
   };
 
-  if (open) {
+  if (isOpen) {
     return (
       <>
         {showOverlay && <S.Overlay />}
